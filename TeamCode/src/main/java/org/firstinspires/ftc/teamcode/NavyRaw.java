@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
 @TeleOp(name = "Navy Robot")
-public class Navy extends LinearOpMode {
+public class NavyRaw extends LinearOpMode {
     private final double minArmPosition = 0.91;
     private final double maxArmPosition = 0.5;
     private final double clawClosedPosition = 0.0;
@@ -19,25 +19,22 @@ public class Navy extends LinearOpMode {
         // Make sure your ID's match your configuration
         // TODO: change hardware IDs to match variable names
         // TODO: fix drift by tweaking some values
-//        DcMotor mMotor = hardwareMap.dcMotor.get("somethingBetter"); // arm
-//        Servo armServo = hardwareMap.servo.get("Arm Servo"); //claw
-        Servo armServo = hardwareMap.get(Servo.class, "Arm Servo");
+        Servo armServo = hardwareMap.servo.get("Arm Servo");
         Servo clawServo = hardwareMap.servo.get("Claw Servo"); //claw
 
         DcMotor motorFrontRight = hardwareMap.dcMotor.get("Front Right"); //
         DcMotor motorBackRight = hardwareMap.dcMotor.get("Back Right");   //
         DcMotor motorFrontLeft = hardwareMap.dcMotor.get("Front Left"); //
         DcMotor motorBackLeft = hardwareMap.dcMotor.get("Back Left");   //
+
+        // Spool motors for rasing arm bar
         DcMotor leftSpool = hardwareMap.dcMotor.get("Left Spool");
         DcMotor rightSpool = hardwareMap.dcMotor.get("right Spool");
-        int MIN_ARM_POSITION = -10;
-        int MAX_ARM_POSITION = 325;
-        int arm_rotation = -10;
 
         motorFrontLeft.setDirection(DcMotor.Direction.REVERSE);
         motorBackLeft.setDirection(DcMotor.Direction.REVERSE);
         leftSpool.setDirection(DcMotorSimple.Direction.REVERSE);
-//        armServo.setPosition(currentArmPosition);
+
         telemetry.addData("Initial Arm Position", "(%.2f)", armServo.getPosition());
         telemetry.update();
 
@@ -46,23 +43,15 @@ public class Navy extends LinearOpMode {
         while (opModeIsActive()) {
 
             double positionAdjustment = 0;
-            double armPower = 0;
-            int xo = 0;
-            arm_rotation = 0;
 
             if (gamepad1.left_bumper) {
                 positionAdjustment = -0.001;
-//                positionAdjustment = 0.5;
             }
             if (gamepad1.right_bumper) {
                 positionAdjustment = 0.001;
-//                positionAdjustment = 0.91;
             }
             telemetry.addData("Pre Arm Adjust", "(%.2f)", armServo.getPosition());
-//            telemetry.addData("Previous arm position", "(%.2f)", currentArmPosition);
-//            currentArmPosition = Range.clip(positionAdjustment + currentArmPosition, maxArmPosition, minArmPosition);
-//            telemetry.addData("Arm Adjustment", "(%.2f)", positionAdjustment);
-//            telemetry.addData("Current Arm Position", "(%.2f)", currentArmPosition);
+            // Because of the position of the rotor, a higher value is down, a lower value is up.
             double newPosition = Range.clip(positionAdjustment + armServo.getPosition(), maxArmPosition, minArmPosition);
             telemetry.addData("Calculated new value", "(%.2f)", newPosition);
 
@@ -89,11 +78,6 @@ public class Navy extends LinearOpMode {
 //            telemetry.addData("Spool Power", "(%2.f)", leftSpool.getPower());
 //            telemetry.addData("L Spool Position", String.valueOf(leftSpool.getCurrentPosition()));
 //            telemetry.addData("R Spool Position", String.valueOf(rightSpool.getCurrentPosition()));
-            telemetry.update();
-
-//            mMotor.setPower(armPower);
-
-
 
             double y = -gamepad1.left_stick_y; // Remember, this is reversed!
             double x = gamepad1.left_stick_x * 1.1; // Counteract imperfect strafing
@@ -115,7 +99,7 @@ public class Navy extends LinearOpMode {
             motorFrontRight.setPower(frontRightPower);
             motorBackRight.setPower(backRightPower);
 
-
+            telemetry.update();
         }
     }
 }
